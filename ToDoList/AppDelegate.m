@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "KeychainItemWrapper.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,40 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    @try {
+        KeychainItemWrapper *keychainItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"YourAppLogin" accessGroup:nil];
+        NSData *username = [keychainItem objectForKey:(__bridge id)(kSecValueData)];
+        NSData *passwordStr = [keychainItem objectForKey:(__bridge id)(kSecAttrAccount)];
+        NSData *userid = [keychainItem objectForKey:(__bridge id)(kSecAttrDescription)];
+        
+        NSString *usernameStr = [[NSString alloc] initWithBytes:[username bytes] length:[username length] encoding:NSUTF8StringEncoding];
+        
+        
+        if(usernameStr.length > 0 )
+        {
+            if( passwordStr.length > 0 )
+            {                
+                if(userid > 0)
+                {
+                    UIViewController* rootController = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"To-do-list"];
+                    UINavigationController* navigation = [[UINavigationController alloc] initWithRootViewController:rootController];
+                    
+                    self.window.rootViewController = navigation;
+                }
+            }
+        }
+        else
+        {
+            self.window.rootViewController = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]] instantiateInitialViewController];
+        }
+    }
+    @catch (NSException *exception) {
+         self.window.rootViewController = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]] instantiateInitialViewController];
+    }
+    @finally {
+        //<#Code that gets executed whether or not an exception is thrown#>
+    }    
     return YES;
 }
 
